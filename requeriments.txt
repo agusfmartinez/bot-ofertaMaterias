@@ -1,0 +1,6 @@
+python-dotenv
+requests 
+beautifulsoup4 
+openpyxl 
+gspread 
+google-auth
