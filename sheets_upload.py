@@ -89,7 +89,7 @@ def upload(datos, gc):
         ws = sh.add_worksheet(title=WORKSHEET_NAME, rows=200, cols=5)
         print(f"[SHEETS] Hoja '{WORKSHEET_NAME}' creada")
 
-    headers = ["Materia", "Código", "Comisión", "Horario", "Tipo Clase"]
+    headers = ["Materia", "Código", "Comisión", "Turno", "Horario", "Tipo Clase"]
 
     rows = [headers]
 
@@ -110,6 +110,7 @@ def upload(datos, gc):
                 nombre,
                 codigo,
                 limpiar_comision(com.get("comision", "")),
+                com.get("turno",""),
                 com.get("horario",""),
                 com.get("tipo_clase", ""),
             ])
@@ -118,7 +119,7 @@ def upload(datos, gc):
     ws.update(rows, value_input_option="RAW")
 
     # Formato encabezado
-    ws.format("A1:E1", {
+    ws.format("A1:F1", {
         "backgroundColor": {"red": 0.122, "green": 0.306, "blue": 0.475},
         "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
         "horizontalAlignment": "CENTER",
