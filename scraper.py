@@ -12,6 +12,13 @@ import sys
 from datetime import datetime
 from dotenv import load_dotenv
 
+# La consola de Windows usa cp1252 y rompe con los símbolos → ✓ ─ de los prints
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except AttributeError:
+    pass
+
 load_dotenv()
 
 # ──────────────────────────────────────────────
@@ -100,6 +107,15 @@ def login(sesion):
 # ──────────────────────────────────────────────
 #  OBTENER LISTA DE MATERIAS
 # ──────────────────────────────────────────────
+
+def obtener_nombre_carrera(sesion, carrera_id):
+    """Nombre de la carrera activa según el SIU. Se usa para nombrar la hoja del Sheet."""
+    r = sesion.get(f"{BASE_URL}/inicio_alumno", timeout=15)
+    soup = BeautifulSoup(r.content, "html.parser", from_encoding="iso-8859-1")
+    for a in soup.find_all("a", attrs={"data-carrera-id": True}):
+        if str(a["data-carrera-id"]).strip() == str(carrera_id).strip():
+            return a.get("title", "").strip()
+    return ""
 
 def obtener_lista_materias(sesion):
     print("[MATERIAS] Obteniendo listado desde /cursada ...")
@@ -275,11 +291,15 @@ def main():
     sesion = crear_sesion()
     login(sesion)
 
+    carrera = obtener_nombre_carrera(sesion, CARRERA_ID)
+    print(f"[CARRERA] id={CARRERA_ID} → {carrera or '(nombre no encontrado)'}")
+
     sesion.get(f"{BASE_URL}/acceso/cambiar_carrera?id={CARRERA_ID}&op=cursada", timeout=15)
     time.sleep(1)
 
     materias = obtener_lista_materias(sesion)
-    estado["total"] = len(materias)
+    estado["total"]   = len(materias)
+    estado["carrera"] = carrera
     guardar_json(FILE_ESTADO, estado)
 
     print(f"\n[INICIO] Total: {len(materias)} | Ya procesadas: {len(procesadas)} | Pendientes: {len(materias)-len(procesadas)}\n")

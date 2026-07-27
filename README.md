@@ -36,8 +36,38 @@ En `.env`:
 ```python
 USUARIO  = "tu_usuario_unahur"
 PASSWORD = "tu_password_unahur"
-CARRERA_ID= "id_de_carrera"
+CARRERA_ID= "id_de_carrera"          # 38 = Licenciatura en Informática
+SHEET_ID = "id_del_google_sheet"
+PERIODO  = "2C 2026"
 ```
+
+> El `CARRERA_ID` se saca del listado de propuestas en `/inicio_alumno`
+> (atributo `data-carrera-id` de cada carrera).
+> Desde 2026 la carrera está unificada: solo se scrapea la **Licenciatura en
+> Informática** (id `38`); la Tecnicatura en Programación pasó a ser título
+> intermedio de la Licenciatura.
+
+### Nombre de la hoja destino
+Se arma solo, no está hardcodeado:
+
+```
+Oferta  +  <carrera abreviada>  +  PERIODO      →  "Oferta Lic. Informática 2C 2026"
+```
+
+La carrera la scrapea `scraper.py` del propio SIU y la deja en
+`materias_estado.json`; lo único que se toca a mano por cuatrimestre es
+`PERIODO` en el `.env`.
+
+El uploader **crea esa hoja si no existe y no toca el resto de las hojas del
+documento**. Si el nombre ya existe, esa hoja se limpia y se reescribe — por eso
+conviene cambiar `PERIODO` antes de cada corrida.
+
+Para forzar un nombre puntual, se puede definir `WORKSHEET_NAME` en el `.env`,
+que pisa todo lo anterior.
+
+⚠️ Antes de arrancar un cuatrimestre nuevo, borrar `horarios_data.json` y
+`materias_estado.json` — si quedan del cuatrimestre anterior, el scraper
+considera esas materias ya procesadas y no las vuelve a bajar.
 
 ### Paso 2 — Ejecutar el scraper
 ```bash

@@ -3,3 +3,6 @@ test
 .env
 
 credentials.json
+__pycache__
+horarios_data.json
+materias_estado.json
